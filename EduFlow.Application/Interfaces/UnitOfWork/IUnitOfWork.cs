@@ -15,6 +15,7 @@ namespace EduFlow.Application.Interfaces.UnitOfWork
         IMaterialRepository Materials { get; }
         INotificationRepository Notifications { get; }
         IAuthRepository Auths { get; }
+        IWaitingListRepository WaitingList { get; }
 
         Task<int> SaveChangesAsync();
 

@@ -16,6 +16,7 @@ public class UnitOfWork : IUnitOfWork
     public IMaterialRepository Materials { get; private set; }
     public INotificationRepository Notifications { get; private set; }
     public IAuthRepository Auths { get; private set; }
+    public IWaitingListRepository WaitingList { get; private set; }
 
     private IDbContextTransaction _transaction;
 
@@ -29,6 +30,7 @@ public class UnitOfWork : IUnitOfWork
         Materials = new MaterialRepository(_context);
         Notifications = new NotificationRepository(_context);
         Auths = new AuthRepository(userManager, context);
+        WaitingList = new WaitingListRepository(_context);
     }
 
     public async Task<int> SaveChangesAsync() => await _context.SaveChangesAsync();

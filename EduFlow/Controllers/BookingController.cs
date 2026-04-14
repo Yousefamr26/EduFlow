@@ -31,8 +31,23 @@ public class BookingController : ControllerBase
         {
             var studentId = GetStudentIdFromToken();
             var command = new BookSessionCommand(studentId, dto.SessionId);
-            var bookingId = await _mediator.Send(command);
-            return Ok(new { BookingId = bookingId });
+            var result = await _mediator.Send(command);
+
+            if (result < 0)
+            {
+                // Negative ID indicates waiting list entry
+                return Ok(new { 
+                    WaitingListEntryId = -result, 
+                    Status = "Waiting",
+                    Message = "Session is full. You have been added to the waiting list." 
+                });
+            }
+
+            return Ok(new { 
+                BookingId = result, 
+                Status = "Booked",
+                Message = "Successfully booked the session."
+            });
         }
         catch (UnauthorizedAccessException ex)
         {

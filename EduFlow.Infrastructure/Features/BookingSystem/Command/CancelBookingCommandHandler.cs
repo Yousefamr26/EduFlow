@@ -1,5 +1,6 @@
 ﻿using EduFlow.Application.Interfaces.UnitOfWork;
 using EduFlow.Domain.Entities;
+using EduFlow.Infrastructure.Features.WaitingList.Services;
 using MediatR;
 using System;
 using System.Threading;
@@ -10,10 +11,12 @@ namespace EduFlow.Infrastructure.Features.BookingSystem.Command
     public class CancelBookingCommandHandler : IRequestHandler<CancelBookingCommand, Unit>
     {
         private readonly IUnitOfWork _unitOfWork;
+        private readonly IAutoBookingService _autoBookingService;
 
-        public CancelBookingCommandHandler(IUnitOfWork unitOfWork)
+        public CancelBookingCommandHandler(IUnitOfWork unitOfWork, IAutoBookingService autoBookingService)
         {
             _unitOfWork = unitOfWork;
+            _autoBookingService = autoBookingService;
         }
 
         public async Task<Unit> Handle(CancelBookingCommand request, CancellationToken cancellationToken)
@@ -38,12 +41,17 @@ namespace EduFlow.Infrastructure.Features.BookingSystem.Command
             {
                 UserId = booking.StudentId,
                 Message = $"Your booking for session '{session.Title}' has been canceled.",
+                IsRead = false,
                 CreatedAt = DateTime.UtcNow,
                 UpdatedAt = DateTime.UtcNow
             };
             await _unitOfWork.Notifications.AddAsync(notification);
 
             await _unitOfWork.SaveChangesAsync();
+
+            // Auto-book next person from waiting list
+            await _autoBookingService.AutoBookNextFromWaitingListAsync(booking.SessionId);
+
             return Unit.Value;
         }
     }

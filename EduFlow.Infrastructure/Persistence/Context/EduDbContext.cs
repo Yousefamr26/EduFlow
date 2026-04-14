@@ -18,6 +18,7 @@ namespace EduFlow.Infrastructure.Persistence.Context
         public DbSet<Material> Materials { get; set; }
         public DbSet<Session> Sessions { get; set; }
         public DbSet<Notification> Notifications { get; set; }
+        public DbSet<WaitingListEntry> WaitingListEntries { get; set; }
 
         // 🔥 Apply Configurations
         protected override void OnModelCreating(ModelBuilder builder)

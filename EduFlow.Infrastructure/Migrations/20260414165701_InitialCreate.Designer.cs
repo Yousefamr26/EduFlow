@@ -12,8 +12,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace EduFlow.Infrastructure.Migrations
 {
     [DbContext(typeof(EduDbContext))]
-    [Migration("20260407225112_FixNotificationsTable")]
-    partial class FixNotificationsTable
+    [Migration("20260414165701_InitialCreate")]
+    partial class InitialCreate
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)

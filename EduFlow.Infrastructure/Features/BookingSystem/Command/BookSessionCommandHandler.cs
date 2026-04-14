@@ -16,55 +16,79 @@ namespace EduFlow.Infrastructure.Features.BookingSystem.Command
             _unitOfWork = unitOfWork;
         }
 
-            public async Task<int> Handle(BookSessionCommand request, CancellationToken cancellationToken)
+        public async Task<int> Handle(BookSessionCommand request, CancellationToken cancellationToken)
+        {
+            var student = await _unitOfWork.Auths.GetUserByIdAsync(request.StudentId);
+
+            if (!student.IsAccessCodeVerified)
+                throw new Exception("Access code verification required");
+
+            await _unitOfWork.BeginTransactionAsync();
+
+            try
             {
-                var student = await _unitOfWork.Auths.GetUserByIdAsync(request.StudentId);
+                var session = await _unitOfWork.Sessions.GetByIdAsync(request.SessionId);
 
-                if (!student.IsAccessCodeVerified)
-                    throw new Exception("Access code verification required");
+                if (session == null || session.IsCanceled)
+                    throw new Exception("Session not available");
 
-                await _unitOfWork.BeginTransactionAsync();
+                if (session.DateTime <= DateTime.UtcNow)
+                    throw new Exception("Session already started");
 
-                try
+                if (await _unitOfWork.Bookings.IsAlreadyBookedAsync(request.StudentId, request.SessionId))
+                    throw new Exception("Already booked");
+
+                if (await _unitOfWork.Bookings.HasTimeConflictAsync(request.StudentId, session.DateTime))
+                    throw new Exception("Time conflict");
+
+                // If session is full, add to waiting list instead
+                if (session.BookedCount >= session.Capacity)
                 {
-                    var session = await _unitOfWork.Sessions.GetByIdAsync(request.SessionId);
+                    await _unitOfWork.RollbackAsync();
 
-                    if (session == null || session.IsCanceled)
-                        throw new Exception("Session not available");
+                    // Check if already in waiting list
+                    if (await _unitOfWork.WaitingList.IsInWaitingListAsync(request.StudentId, request.SessionId))
+                        throw new Exception("Already in waiting list for this session");
 
-                    if (session.DateTime <= DateTime.UtcNow)
-                        throw new Exception("Session already started");
+                    var existingEntries = await _unitOfWork.WaitingList.GetWaitingListBySessionIdAsync(request.SessionId);
+                    var nextPosition = existingEntries.Count() + 1;
 
-                    if (session.BookedCount >= session.Capacity)
-                        throw new Exception("Session full");
-
-                    if (await _unitOfWork.Bookings.IsAlreadyBookedAsync(request.StudentId, request.SessionId))
-                        throw new Exception("Already booked");
-
-                    if (await _unitOfWork.Bookings.HasTimeConflictAsync(request.StudentId, session.DateTime))
-                        throw new Exception("Time conflict");
-
-                    var booking = new Booking
+                    var waitingEntry = new WaitingListEntry
                     {
                         StudentId = request.StudentId,
                         SessionId = request.SessionId,
-                        BookingTime = DateTime.UtcNow
+                        RequestTime = DateTime.UtcNow,
+                        QueuePosition = nextPosition
                     };
 
-                    await _unitOfWork.Bookings.AddAsync(booking);
+                    await _unitOfWork.WaitingList.AddAsync(waitingEntry);
+                    await _unitOfWork.SaveChangesAsync();
 
-                    session.BookedCount++;
-                    _unitOfWork.Sessions.Update(session);
-
-                    await _unitOfWork.CommitAsync();
-
-                    return booking.Id;
+                    // Return negative ID to indicate it's a waiting list entry, not a booking
+                    return -waitingEntry.Id;
                 }
-                catch
+
+                var booking = new Booking
                 {
-                    await _unitOfWork.RollbackAsync();
-                    throw;
-                }
+                    StudentId = request.StudentId,
+                    SessionId = request.SessionId,
+                    BookingTime = DateTime.UtcNow
+                };
+
+                await _unitOfWork.Bookings.AddAsync(booking);
+
+                session.BookedCount++;
+                _unitOfWork.Sessions.Update(session);
+
+                await _unitOfWork.CommitAsync();
+
+                return booking.Id;
+            }
+            catch
+            {
+                await _unitOfWork.RollbackAsync();
+                throw;
             }
         }
     }
+}
