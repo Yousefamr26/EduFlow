@@ -17,13 +17,20 @@ public class UnitOfWork : IUnitOfWork
     public INotificationRepository Notifications { get; private set; }
     public IAuthRepository Auths { get; private set; }
     public IWaitingListRepository WaitingList { get; private set; }
+    public IRoomRepository Rooms { get; private set; }
+    public ISubjectRepository Subjects { get; private set; }
+    public ITeacherSubjectRepository TeacherSubjects { get; private set; }
+    public IPackageRepository Packages { get; private set; }
+    public IStudentSubscriptionRepository Subscriptions { get; private set; }
+    public ITeacherRatingRepository Ratings { get; private set; }
 
     private IDbContextTransaction _transaction;
+
+
 
     public UnitOfWork(EduDbContext context, UserManager<ApplicationUser> userManager)
     {
         _context = context;
-
         AccessCodes = new AccessCodeRepository(_context);
         Sessions = new SessionRepository(_context);
         Bookings = new BookingRepository(_context);
@@ -31,8 +38,14 @@ public class UnitOfWork : IUnitOfWork
         Notifications = new NotificationRepository(_context);
         Auths = new AuthRepository(userManager, context);
         WaitingList = new WaitingListRepository(_context);
-    }
+        Rooms = new RoomRepository(_context);      
+        Subjects = new SubjectRepository(_context);
+        TeacherSubjects = new TeacherSubjectRepository(_context);
+        Packages = new PackageRepository(_context);
+        Subscriptions = new StudentSubscriptionRepository(_context);
+        Ratings = new TeacherRatingRepository(_context);
 
+    }
     public async Task<int> SaveChangesAsync() => await _context.SaveChangesAsync();
 
     public async Task BeginTransactionAsync() => _transaction = await _context.Database.BeginTransactionAsync();
