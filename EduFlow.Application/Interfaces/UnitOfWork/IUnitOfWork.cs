@@ -16,9 +16,14 @@ namespace EduFlow.Application.Interfaces.UnitOfWork
         INotificationRepository Notifications { get; }
         IAuthRepository Auths { get; }
         IWaitingListRepository WaitingList { get; }
+        IRoomRepository Rooms { get; }   
+        ISubjectRepository Subjects { get; }
+        ITeacherSubjectRepository TeacherSubjects { get; }
+        IPackageRepository Packages { get; }
+        IStudentSubscriptionRepository Subscriptions { get; }
+        ITeacherRatingRepository Ratings { get; }
 
         Task<int> SaveChangesAsync();
-
         Task BeginTransactionAsync();
         Task CommitAsync();
         Task RollbackAsync();

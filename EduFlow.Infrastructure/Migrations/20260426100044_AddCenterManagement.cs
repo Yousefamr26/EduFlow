@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace EduFlow.Infrastructure.Migrations
 {
     /// <inheritdoc />
-    public partial class InitialCreate : Migration
+    public partial class AddCenterManagement : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -51,6 +51,48 @@ namespace EduFlow.Infrastructure.Migrations
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_AspNetUsers", x => x.Id);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "Rooms",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    Name = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    Capacity = table.Column<int>(type: "int", nullable: false),
+                    Location = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    IsAvailable = table.Column<bool>(type: "bit", nullable: false),
+                    CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    UpdatedAt = table.Column<DateTime>(type: "datetime2", nullable: true),
+                    IsDeleted = table.Column<bool>(type: "bit", nullable: false),
+                    RowVersion = table.Column<byte[]>(type: "rowversion", rowVersion: true, nullable: false),
+                    CreatedBy = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    UpdatedBy = table.Column<string>(type: "nvarchar(max)", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Rooms", x => x.Id);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "Subjects",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    Name = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    Description = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    UpdatedAt = table.Column<DateTime>(type: "datetime2", nullable: true),
+                    IsDeleted = table.Column<bool>(type: "bit", nullable: false),
+                    RowVersion = table.Column<byte[]>(type: "rowversion", rowVersion: true, nullable: false),
+                    CreatedBy = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    UpdatedBy = table.Column<string>(type: "nvarchar(max)", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Subjects", x => x.Id);
                 });
 
             migrationBuilder.CreateTable(
@@ -227,6 +269,8 @@ namespace EduFlow.Infrastructure.Migrations
                     SessionCodeHash = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     RowVersion = table.Column<byte[]>(type: "rowversion", rowVersion: true, nullable: false),
                     TeacherId = table.Column<string>(type: "nvarchar(450)", nullable: false),
+                    SubjectId = table.Column<int>(type: "int", nullable: true),
+                    RoomId = table.Column<int>(type: "int", nullable: true),
                     CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false),
                     UpdatedAt = table.Column<DateTime>(type: "datetime2", nullable: true),
                     IsDeleted = table.Column<bool>(type: "bit", nullable: false),
@@ -240,6 +284,46 @@ namespace EduFlow.Infrastructure.Migrations
                         name: "FK_Sessions_AspNetUsers_TeacherId",
                         column: x => x.TeacherId,
                         principalTable: "AspNetUsers",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_Sessions_Rooms_RoomId",
+                        column: x => x.RoomId,
+                        principalTable: "Rooms",
+                        principalColumn: "Id");
+                    table.ForeignKey(
+                        name: "FK_Sessions_Subjects_SubjectId",
+                        column: x => x.SubjectId,
+                        principalTable: "Subjects",
+                        principalColumn: "Id");
+                });
+
+            migrationBuilder.CreateTable(
+                name: "TeacherSubjects",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    TeacherId = table.Column<string>(type: "nvarchar(450)", nullable: false),
+                    SubjectId = table.Column<int>(type: "int", nullable: false),
+                    CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    UpdatedAt = table.Column<DateTime>(type: "datetime2", nullable: true),
+                    IsDeleted = table.Column<bool>(type: "bit", nullable: false),
+                    RowVersion = table.Column<byte[]>(type: "rowversion", rowVersion: true, nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_TeacherSubjects", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_TeacherSubjects_AspNetUsers_TeacherId",
+                        column: x => x.TeacherId,
+                        principalTable: "AspNetUsers",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_TeacherSubjects_Subjects_SubjectId",
+                        column: x => x.SubjectId,
+                        principalTable: "Subjects",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                 });
@@ -306,6 +390,37 @@ namespace EduFlow.Infrastructure.Migrations
                         principalTable: "Sessions",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Restrict);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "WaitingListEntries",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    StudentId = table.Column<string>(type: "nvarchar(450)", nullable: false),
+                    SessionId = table.Column<int>(type: "int", nullable: false),
+                    RequestTime = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    QueuePosition = table.Column<int>(type: "int", nullable: false),
+                    CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    UpdatedAt = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    IsDeleted = table.Column<bool>(type: "bit", nullable: false),
+                    RowVersion = table.Column<byte[]>(type: "rowversion", rowVersion: true, nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_WaitingListEntries", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_WaitingListEntries_AspNetUsers_StudentId",
+                        column: x => x.StudentId,
+                        principalTable: "AspNetUsers",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_WaitingListEntries_Sessions_SessionId",
+                        column: x => x.SessionId,
+                        principalTable: "Sessions",
+                        principalColumn: "Id");
                 });
 
             migrationBuilder.CreateIndex(
@@ -390,9 +505,45 @@ namespace EduFlow.Infrastructure.Migrations
                 column: "UserId");
 
             migrationBuilder.CreateIndex(
+                name: "IX_Sessions_RoomId",
+                table: "Sessions",
+                column: "RoomId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Sessions_SubjectId",
+                table: "Sessions",
+                column: "SubjectId");
+
+            migrationBuilder.CreateIndex(
                 name: "IX_Sessions_TeacherId",
                 table: "Sessions",
                 column: "TeacherId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_TeacherSubjects_SubjectId",
+                table: "TeacherSubjects",
+                column: "SubjectId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_TeacherSubjects_TeacherId",
+                table: "TeacherSubjects",
+                column: "TeacherId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_WaitingListEntry_RequestTime",
+                table: "WaitingListEntries",
+                column: "RequestTime");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_WaitingListEntry_SessionId",
+                table: "WaitingListEntries",
+                column: "SessionId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_WaitingListEntry_StudentId_SessionId",
+                table: "WaitingListEntries",
+                columns: new[] { "StudentId", "SessionId" },
+                unique: true);
         }
 
         /// <inheritdoc />
@@ -426,6 +577,12 @@ namespace EduFlow.Infrastructure.Migrations
                 name: "Notifications");
 
             migrationBuilder.DropTable(
+                name: "TeacherSubjects");
+
+            migrationBuilder.DropTable(
+                name: "WaitingListEntries");
+
+            migrationBuilder.DropTable(
                 name: "AspNetRoles");
 
             migrationBuilder.DropTable(
@@ -433,6 +590,12 @@ namespace EduFlow.Infrastructure.Migrations
 
             migrationBuilder.DropTable(
                 name: "AspNetUsers");
+
+            migrationBuilder.DropTable(
+                name: "Rooms");
+
+            migrationBuilder.DropTable(
+                name: "Subjects");
         }
     }
 }

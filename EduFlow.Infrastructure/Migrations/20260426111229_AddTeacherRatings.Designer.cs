@@ -12,8 +12,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace EduFlow.Infrastructure.Migrations
 {
     [DbContext(typeof(EduDbContext))]
-    [Migration("20260414165701_InitialCreate")]
-    partial class InitialCreate
+    [Migration("20260426111229_AddTeacherRatings")]
+    partial class AddTeacherRatings
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -301,6 +301,103 @@ namespace EduFlow.Infrastructure.Migrations
                     b.ToTable("Notifications", (string)null);
                 });
 
+            modelBuilder.Entity("EduFlow.Domain.Entities.Package", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("CreatedBy")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Description")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("DurationInDays")
+                        .HasColumnType("int");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("bit");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<decimal>("Price")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<byte[]>("RowVersion")
+                        .IsConcurrencyToken()
+                        .IsRequired()
+                        .ValueGeneratedOnAddOrUpdate()
+                        .HasColumnType("rowversion");
+
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("UpdatedBy")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Packages");
+                });
+
+            modelBuilder.Entity("EduFlow.Domain.Entities.Room", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<int>("Capacity")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("CreatedBy")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<bool>("IsAvailable")
+                        .HasColumnType("bit");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("Location")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<byte[]>("RowVersion")
+                        .IsConcurrencyToken()
+                        .IsRequired()
+                        .ValueGeneratedOnAddOrUpdate()
+                        .HasColumnType("rowversion");
+
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("UpdatedBy")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Rooms");
+                });
+
             modelBuilder.Entity("EduFlow.Domain.Entities.Session", b =>
                 {
                     b.Property<int>("Id")
@@ -334,6 +431,9 @@ namespace EduFlow.Infrastructure.Migrations
                     b.Property<bool>("IsDeleted")
                         .HasColumnType("bit");
 
+                    b.Property<int?>("RoomId")
+                        .HasColumnType("int");
+
                     b.Property<byte[]>("RowVersion")
                         .IsConcurrencyToken()
                         .IsRequired()
@@ -343,6 +443,9 @@ namespace EduFlow.Infrastructure.Migrations
                     b.Property<string>("SessionCodeHash")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
+
+                    b.Property<int?>("SubjectId")
+                        .HasColumnType("int");
 
                     b.Property<string>("TeacherId")
                         .IsRequired()
@@ -360,9 +463,248 @@ namespace EduFlow.Infrastructure.Migrations
 
                     b.HasKey("Id");
 
+                    b.HasIndex("RoomId");
+
+                    b.HasIndex("SubjectId");
+
                     b.HasIndex("TeacherId");
 
                     b.ToTable("Sessions");
+                });
+
+            modelBuilder.Entity("EduFlow.Domain.Entities.StudentSubscription", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("CreatedBy")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime>("EndDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("bit");
+
+                    b.Property<int>("PackageId")
+                        .HasColumnType("int");
+
+                    b.Property<byte[]>("RowVersion")
+                        .IsConcurrencyToken()
+                        .IsRequired()
+                        .ValueGeneratedOnAddOrUpdate()
+                        .HasColumnType("rowversion");
+
+                    b.Property<DateTime>("StartDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("StudentId")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("UpdatedBy")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("PackageId");
+
+                    b.HasIndex("StudentId");
+
+                    b.ToTable("StudentSubscriptions");
+                });
+
+            modelBuilder.Entity("EduFlow.Domain.Entities.Subject", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("CreatedBy")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Description")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<byte[]>("RowVersion")
+                        .IsConcurrencyToken()
+                        .IsRequired()
+                        .ValueGeneratedOnAddOrUpdate()
+                        .HasColumnType("rowversion");
+
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("UpdatedBy")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Subjects");
+                });
+
+            modelBuilder.Entity("EduFlow.Domain.Entities.TeacherRating", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("Comment")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("CreatedBy")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("bit");
+
+                    b.Property<int>("Rating")
+                        .HasColumnType("int");
+
+                    b.Property<byte[]>("RowVersion")
+                        .IsConcurrencyToken()
+                        .IsRequired()
+                        .ValueGeneratedOnAddOrUpdate()
+                        .HasColumnType("rowversion");
+
+                    b.Property<string>("StudentId")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<string>("TeacherId")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("UpdatedBy")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("StudentId");
+
+                    b.HasIndex("TeacherId");
+
+                    b.ToTable("TeacherRatings");
+                });
+
+            modelBuilder.Entity("EduFlow.Domain.Entities.TeacherSubject", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("bit");
+
+                    b.Property<byte[]>("RowVersion")
+                        .IsConcurrencyToken()
+                        .IsRequired()
+                        .ValueGeneratedOnAddOrUpdate()
+                        .HasColumnType("rowversion");
+
+                    b.Property<int>("SubjectId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("TeacherId")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("SubjectId");
+
+                    b.HasIndex("TeacherId");
+
+                    b.ToTable("TeacherSubjects");
+                });
+
+            modelBuilder.Entity("EduFlow.Domain.Entities.WaitingListEntry", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("bit");
+
+                    b.Property<int>("QueuePosition")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime>("RequestTime")
+                        .HasColumnType("datetime2");
+
+                    b.Property<byte[]>("RowVersion")
+                        .IsConcurrencyToken()
+                        .IsRequired()
+                        .ValueGeneratedOnAddOrUpdate()
+                        .HasColumnType("rowversion");
+
+                    b.Property<int>("SessionId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("StudentId")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<DateTime?>("UpdatedAt")
+                        .IsRequired()
+                        .HasColumnType("datetime2");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("RequestTime")
+                        .HasDatabaseName("IX_WaitingListEntry_RequestTime");
+
+                    b.HasIndex("SessionId")
+                        .HasDatabaseName("IX_WaitingListEntry_SessionId");
+
+                    b.HasIndex("StudentId", "SessionId")
+                        .IsUnique()
+                        .HasDatabaseName("IX_WaitingListEntry_StudentId_SessionId");
+
+                    b.ToTable("WaitingListEntries");
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRole", b =>
@@ -560,13 +902,101 @@ namespace EduFlow.Infrastructure.Migrations
 
             modelBuilder.Entity("EduFlow.Domain.Entities.Session", b =>
                 {
+                    b.HasOne("EduFlow.Domain.Entities.Room", "Room")
+                        .WithMany("Sessions")
+                        .HasForeignKey("RoomId");
+
+                    b.HasOne("EduFlow.Domain.Entities.Subject", "Subject")
+                        .WithMany("Sessions")
+                        .HasForeignKey("SubjectId");
+
                     b.HasOne("EduFlow.Domain.Entities.ApplicationUser", "Teacher")
                         .WithMany("SessionsAsTeacher")
                         .HasForeignKey("TeacherId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
+                    b.Navigation("Room");
+
+                    b.Navigation("Subject");
+
                     b.Navigation("Teacher");
+                });
+
+            modelBuilder.Entity("EduFlow.Domain.Entities.StudentSubscription", b =>
+                {
+                    b.HasOne("EduFlow.Domain.Entities.Package", "Package")
+                        .WithMany("Subscriptions")
+                        .HasForeignKey("PackageId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("EduFlow.Domain.Entities.ApplicationUser", "Student")
+                        .WithMany()
+                        .HasForeignKey("StudentId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Package");
+
+                    b.Navigation("Student");
+                });
+
+            modelBuilder.Entity("EduFlow.Domain.Entities.TeacherRating", b =>
+                {
+                    b.HasOne("EduFlow.Domain.Entities.ApplicationUser", "Student")
+                        .WithMany()
+                        .HasForeignKey("StudentId")
+                        .OnDelete(DeleteBehavior.NoAction)
+                        .IsRequired();
+
+                    b.HasOne("EduFlow.Domain.Entities.ApplicationUser", "Teacher")
+                        .WithMany()
+                        .HasForeignKey("TeacherId")
+                        .OnDelete(DeleteBehavior.NoAction)
+                        .IsRequired();
+
+                    b.Navigation("Student");
+
+                    b.Navigation("Teacher");
+                });
+
+            modelBuilder.Entity("EduFlow.Domain.Entities.TeacherSubject", b =>
+                {
+                    b.HasOne("EduFlow.Domain.Entities.Subject", "Subject")
+                        .WithMany("TeacherSubjects")
+                        .HasForeignKey("SubjectId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("EduFlow.Domain.Entities.ApplicationUser", "Teacher")
+                        .WithMany()
+                        .HasForeignKey("TeacherId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Subject");
+
+                    b.Navigation("Teacher");
+                });
+
+            modelBuilder.Entity("EduFlow.Domain.Entities.WaitingListEntry", b =>
+                {
+                    b.HasOne("EduFlow.Domain.Entities.Session", "Session")
+                        .WithMany()
+                        .HasForeignKey("SessionId")
+                        .OnDelete(DeleteBehavior.NoAction)
+                        .IsRequired();
+
+                    b.HasOne("EduFlow.Domain.Entities.ApplicationUser", "Student")
+                        .WithMany()
+                        .HasForeignKey("StudentId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Session");
+
+                    b.Navigation("Student");
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>
@@ -627,11 +1057,28 @@ namespace EduFlow.Infrastructure.Migrations
                     b.Navigation("SessionsAsTeacher");
                 });
 
+            modelBuilder.Entity("EduFlow.Domain.Entities.Package", b =>
+                {
+                    b.Navigation("Subscriptions");
+                });
+
+            modelBuilder.Entity("EduFlow.Domain.Entities.Room", b =>
+                {
+                    b.Navigation("Sessions");
+                });
+
             modelBuilder.Entity("EduFlow.Domain.Entities.Session", b =>
                 {
                     b.Navigation("Bookings");
 
                     b.Navigation("Materials");
+                });
+
+            modelBuilder.Entity("EduFlow.Domain.Entities.Subject", b =>
+                {
+                    b.Navigation("Sessions");
+
+                    b.Navigation("TeacherSubjects");
                 });
 #pragma warning restore 612, 618
         }

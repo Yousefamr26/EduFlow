@@ -1,23 +1,21 @@
-﻿using EduFlow.Application.Interfaces.Repositories;
+﻿using AutoMapper;
+using EduFlow.Application.Interfaces.IService;
+using EduFlow.Application.Interfaces.Repositories;
 using EduFlow.Application.Interfaces.UnitOfWork;
 using EduFlow.Domain.Entities;
 using EduFlow.Infrastructure.Persistence.Context;
 using EduFlow.Infrastructure.Repositories;
-
-using Microsoft.AspNetCore.Identity;
-using Microsoft.EntityFrameworkCore;
-
-// 🔐 JWT
-using Microsoft.AspNetCore.Authentication.JwtBearer;
-using Microsoft.IdentityModel.Tokens;
-using System.Text;
-
-// Swagger
-using Microsoft.OpenApi.Models;
-
+using EduFlow.Infrastructure.Service;
 // MediatR & AutoMapper
 using MediatR;
-using AutoMapper;
+// 🔐 JWT
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.Tokens;
+// Swagger
+using Microsoft.OpenApi.Models;
+using System.Text;
 
 namespace EduFlow
 {
@@ -82,8 +80,14 @@ namespace EduFlow
             builder.Services.AddScoped<IMaterialRepository, MaterialRepository>();
             builder.Services.AddScoped<INotificationRepository, NotificationRepository>();
             builder.Services.AddScoped<IAuthRepository, AuthRepository>();
+            builder.Services.AddScoped<ISubjectRepository, SubjectRepository>();
+            builder.Services.AddScoped<IRoomRepository, RoomRepository>();
             builder.Services.AddScoped<IWaitingListRepository, WaitingListRepository>();
-
+            builder.Services.AddScoped<ITeacherSubjectRepository, TeacherSubjectRepository>();
+            builder.Services.AddScoped<IPackageRepository, PackageRepository>();
+            builder.Services.AddScoped<ITeacherRatingRepository, TeacherRatingRepository>();
+            builder.Services.AddScoped<IStudentSubscriptionRepository, StudentSubscriptionRepository>();
+            builder.Services.AddScoped<IReportService, ReportService>();
             builder.Services.AddScoped<IJwtService, JwtService>();
             builder.Services.AddScoped<IFileService, FileService>();
             builder.Services.AddScoped<EduFlow.Infrastructure.Features.WaitingList.Services.IAutoBookingService, EduFlow.Infrastructure.Features.WaitingList.Services.AutoBookingService>();

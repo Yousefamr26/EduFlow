@@ -27,6 +27,12 @@ namespace EduFlow.Domain.Entities
         public string TeacherId { get; set; }
         public ApplicationUser Teacher { get; set; }
 
+        public int? SubjectId { get; set; }
+        public Subject? Subject { get; set; }
+
+        public int? RoomId { get; set; }
+        public Room? Room { get; set; }
+
         public ICollection<Booking> Bookings { get; set; }
         public ICollection<Material> Materials { get; set; }
     }
